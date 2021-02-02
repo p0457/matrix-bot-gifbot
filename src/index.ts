@@ -30,7 +30,7 @@ async function finishInit() {
             if (tsDiff < 200) {
                 return Promise.resolve(commands.tryCommand(roomId, event));
             } else {
-                LogService.error("index", "Will not respond to a message that has likely already been responded to");
+                LogService.warn("index", "Will not respond to a message that has likely already been responded to");
                 return;
             }
         } catch (err) {
@@ -47,4 +47,4 @@ async function finishInit() {
     return client.start();
 }
 
-finishInit().then(() => LogService.info("index", "GifBot started!"));
+finishInit().then(() => LogService.info("index", "GifBot started"));
