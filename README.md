@@ -20,14 +20,11 @@ A matrix bot to find gifs for you.
 ### Docker
 
 ```
-# Create the directory structure
-# The bot needs it's config folder and cache location.
-mkdir -p /matrix-bot-gifbot/config
-mkdir -p /matrix-bot-gifbot/storage
+A Dockerfile and docker-compose are provided.
 
-# Create the configuration file. Use the default configration as a template.
-nano /matrix-bot-gifbott/config/production.yaml
+Build the docker image:
+`docker build -t matrix-bot-gifbot .`
 
-# Run the container
-TODO: 
+Build the docker image and run docker-compose to deploy to your server:
+`docker build -t matrix-bot-gifbot . && docker-compose run matrix-bot-gifbot`
 ```
