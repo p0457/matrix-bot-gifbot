@@ -39,12 +39,12 @@ async function finishInit() {
     LogService.info("index", `GifBot logged in as ${userId}`);
 
     client.on("room.message", async (roomId, event) => {
-        if (event['sender'] === userId) return;
-        if (event['type'] !== "m.room.message") return;
-        if (!event['content']) return;
-        if (event['content']['msgtype'] !== "m.text") return;
+        if (event["sender"] === userId) return;
+        if (event["type"] !== "m.room.message") return;
+        if (!event["content"]) return;
+        if (event["content"]["msgtype"] !== "m.text") return;
 
-        const message = event['content']['body'];
+        const message = event["content"]["body"];
         const messageForCompare = message + " "; // Add a space add the end for `giftv `
 
         // Check message is received from a date not too far behind
@@ -57,7 +57,9 @@ async function finishInit() {
         const eventSecondsSinceEpoch = event.origin_server_ts; // Get ms since epoch for message UTC
         const tsDiff = secondsSinceEpoch - eventSecondsSinceEpoch; // Find difference
         if (tsDiff >= 200) {
-            LogService.warn("index", "Will not respond to a message that has likely already been responded to");
+            const eventId = event["event_id"];
+            const sender = event["sender"]
+            LogService.warn("index", `Will not respond to a message that has likely already been responded to (or ignored) ${tsDiff}ms ago (${eventId} sent by ${sender})`);
             return;
         }
 
