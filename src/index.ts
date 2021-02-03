@@ -35,6 +35,19 @@ async function finishInit() {
         return;
     }
 
+    // Check defaultProvider is enabled
+    if (
+        (foundValidProvider === "rightGif" && !config.rightGifEnabled) || 
+        (foundValidProvider === "tenor" && !config.tenorEnabled) || 
+        (foundValidProvider === "giphy" && !config.giphyEnabled) || 
+        (foundValidProvider === "gifMe" && !config.gifMeEnabled) || 
+        (foundValidProvider === "gifTv" && !config.gifTvEnabled) || 
+        (foundValidProvider === "replyGif" && !config.replyGifEnabled) 
+    ) {
+        LogService.error("index", `defaultProvider ${foundValidProvider} was not enabled`);
+        return;
+    }
+
     const userId = await client.getUserId();
     LogService.info("index", `GifBot logged in as ${userId}`);
 
