@@ -25,6 +25,9 @@ A Dockerfile and docker-compose are provided.
 Build the docker image:
 `docker build -t matrix-bot-gifbot .`
 
-Build the docker image and run docker-compose to deploy to your server:
-`docker build -t matrix-bot-gifbot . && docker-compose run matrix-bot-gifbot`
+Docker-compose:
+`docker-compose run matrix-bot-gifbot`
+
+Run manually:
+`docker run matrix-bot-gifbot`
 ```
