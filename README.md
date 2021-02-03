@@ -1,11 +1,32 @@
 # matrix-bot-gifbot
 
 A matrix bot to find gifs for you.
+Supports finding gifs from:
+- RightGIF
+- Tenor (not working)
+- Giphy (not working)
+- GifMe (not working)
+- GifTV
+- ReplyGif (not working)
+
+By default, you can target the services directly using `!rightgif [TERM]` for example, or use a default handler `!gif [TERM]`, which is default set to RightGIF.
 
 # Usage
 
 1. Invite bot to a room
-2. Send the message `!gif text` to get a gif from the default source (you can customize the listener)
+2. Send the message `!gif [TERM]` to get a gif from the default source (you can customize the listener)
+
+# Configuration
+
+1. Copy `config/default.yaml` to `config/production.yaml` and customize to your needs
+2. Get a token for the bot account by logging in:
+```
+curl -X POST --header 'Content-Type: application/json' -d '{
+    "identifier": { "type": "m.id.user", "user": "bot.gifbot" },
+    "password": "PASSWORD",
+    "type": "m.login.password"
+}' 'https://YOUR_HOMESERVER/_matrix/client/r0/login'
+```
 
 # Building your own
 
