@@ -27,16 +27,16 @@ curl -X POST --header 'Content-Type: application/json' -d '{
     "type": "m.login.password"
 }' 'https://YOUR_HOMESERVER/_matrix/client/r0/login'
 ```
+3. The pre-disabed providers are confirmed not working (TODO: Investigate)
 
 # Building your own
 
 *Note*: You'll need to have access to an account that the bot can use to get the access token.
 
 1. Clone this repository
-2. `npm install`
-3. `npm run build`
-4. Copy `config/default.yaml` to `config/production.yaml` and customize to your needs
-5. Run the bot with `NODE_ENV=production node lib/index.js`
+2. Use the VS Code build tasks, or `npm install && npm run build`
+3. Copy `config/default.yaml` to `config/production.yaml` and customize to your needs
+4. Run the bot with `NODE_ENV=production node lib/index.js`
 
 ### Docker
 
