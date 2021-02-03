@@ -13,6 +13,7 @@
             ],
             "program": "${workspaceFolder}\\lib\\index.js",
             "preLaunchTask": "client-build",
+            "postDebugTask": "terminate-tasks",
             "outFiles": [
                 "${workspaceFolder}/lib/**/*.js"
             ],
