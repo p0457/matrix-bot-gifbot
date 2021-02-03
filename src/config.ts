@@ -4,6 +4,43 @@ import { LogConfig } from "matrix-js-snippets";
 interface IConfig {
     homeserverUrl: string;
     accessToken: string;
+
+    msBetweenResponses: number;
+
+    defaultListeningTerm: string;
+
+    rightGifEnabled: boolean;
+    tenorEnabled: boolean;
+    giphyEnabled: boolean;
+    gifMeEnabled: boolean;
+    gifTvEnabled: boolean;
+    replyGifEnabled: boolean;
+
+    rightGifListeningTerm: string;
+    tenorListeningTerm: string;
+    giphyListeningTerm: string;
+    gifMeListeningTerm: string;
+    gifTvListeningTerm: string;
+    replyGifListeningTerm: string;
+
+    listenerCaseSensitive: false;
+
+    rightGifApiEndpoint: string;
+    tenorAnonApiEndpoint: string;
+    tenorApiEndpoint: string;
+    giphyApiEndpoint: string;
+    gifMeApiEndpoint: string;
+    gifTvApiEndpoint: string;
+    gifTvGifStub: string;
+    replyGifApiEndPoint: string;
+
+    tenorApiKey: string;
+    giphyApiKey: string;
+    gifMeApiKey: string;
+    replyGifApiKey: string;
+
+    defaultProvider: string;
+
     logging: LogConfig;
 }
 

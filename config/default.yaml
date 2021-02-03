@@ -1,6 +1,49 @@
 homeserverUrl: "YOUR_HOMESERVER_HERE"
 accessToken: "YOUR_TOKEN_HERE"
 
+# How long back messages can be to be responded to
+msBetweenResponses: 200
+
+# What to listen for
+defaultListeningTerm: "!gif"
+
+# Enable specific providers (the default true are the confirmed working)
+rightGifEnabled: true
+tenorEnabled: false
+giphyEnabled: false
+gifMeEnabled: false
+gifTvEnabled: true
+replyGifEnabled: false
+
+# Provider listening terms
+rightGifListeningTerm: "!rightgif"
+tenorListeningTerm: "!tenor"
+giphyListeningTerm: "!giphy"
+gifMeListeningTerm: "!gifme"
+gifTvListeningTerm: "!giftv"
+replyGifListeningTerm: "!replygif"
+
+listenerCaseSensitive: false
+
+# Endpoints
+rightGifApiEndpoint: "https://rightgif.com/search/web"
+tenorAnonApiEndpoint: "https://api.tenor.com/v1/anonid?key={key}"
+tenorApiEndpoint: "https://api.tenor.com/v1/search?tag={searchTerm}&key={key}&limit={limit}&anon_id={anonId}"
+giphyApiEndpoint: "http://api.giphy.com/v1/gifs/search?api_key={key}&q={searchTerm}"
+gifMeApiEndpoint: "http://api.gifme.io/v1/search?key={key}&query={searchTerm}"
+gifTvApiEndpoint: "http://www.gif.tv/gifs/get.php"
+gifTvGifStub: "http://www.gif.tv/gifs/{id}.gif"
+replyGifApiEndPoint: "http://replygif.net/api/gifs?api-key={key}&tag={searchTerm}"
+
+# Api Keys
+tenorApiKey: ""
+giphyApiKey: ""
+gifMeApiKey: ""
+replyGifApiKey: ""
+
+# Default gif engine to use for defaultListeningTerm, options (not case-sensitive): ["rightGif", "tenor", "giphy", "gifMe", "gifTv", "replyGif"]
+defaultProvider: "rightGif"
+
 # Settings for controlling how logging works
 # The Docker image will only consider the consoleLevel, and not write to any files.
 logging:
