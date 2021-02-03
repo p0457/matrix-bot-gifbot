@@ -3,11 +3,11 @@
 A matrix bot to find gifs for you.
 Supports finding gifs from:
 - RightGIF
-- Tenor (not working)
-- Giphy (not working)
-- GifMe (not working)
+- ~~Tenor (not working)~~
+- ~~Giphy (not working)~~
+- ~~GifMe (not working)~~
 - GifTV
-- ReplyGif (not working)
+- ~~ReplyGif (not working)~~
 
 By default, you can target the services directly using `!rightgif [TERM]` for example, or use a default handler `!gif [TERM]`, which is default set to RightGIF.
 
