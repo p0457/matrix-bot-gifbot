@@ -2,6 +2,7 @@ import { AutojoinRoomsMixin, AutojoinUpgradedRoomsMixin, MatrixClient, SimpleRet
 import config from "./config";
 import { LogService } from "matrix-js-snippets";
 import { CommandProcessor } from "./CommandProcessor";
+import { getListeningTermProviders } from "./helpers";
 
 LogService.configure(config.logging);
 const client = new MatrixClient(config.homeserverUrl, config.accessToken);
@@ -12,6 +13,28 @@ AutojoinUpgradedRoomsMixin.setupOnClient(client);
 client.setJoinStrategy(new SimpleRetryJoinStrategy());
 
 async function finishInit() {
+    // Check defaultListeningTerm exists
+    if (!config.defaultListeningTerm) {
+        LogService.error("index", "defaultListeningTerm is not defined");
+        return;
+    }
+
+    // Check defaultProvider exists
+    if (!config.defaultProvider) {
+        LogService.error("index", "defaultProvider is not defined");
+        return;
+    }
+
+    // Check defaultProvider is valid
+    const validProviders = ["rightGif", "tenor", "giphy", "gifMe", "gifTv", "replyGif"];
+    const foundValidProvider = validProviders.find((p) => {
+        return p.toLowerCase().trim() === config.defaultProvider.toLowerCase().trim();
+    });
+    if (!foundValidProvider) {
+        LogService.error("index", "defaultProvider was invalid");
+        return;
+    }
+
     const userId = await client.getUserId();
     LogService.info("index", `GifBot logged in as ${userId}`);
 
@@ -21,27 +44,41 @@ async function finishInit() {
         if (!event['content']) return;
         if (event['content']['msgtype'] !== "m.text") return;
 
+        const message = event['content']['body'];
+        const messageForCompare = message + " "; // Add a space add the end for `giftv `
+
+        // Check message is received from a date not too far behind
+        // NOTE: When restarting application, bot will respond to most messages in the room, instead of just new ones
+        if (isNaN(config.msBetweenResponses) || config.msBetweenResponses < 0) {
+            LogService.error("index", "Invalid value for msBetweenResponses");
+            return;
+        }
         const secondsSinceEpoch = new Date().getTime(); // Get current ms since epoch for now UTC
         const eventSecondsSinceEpoch = event.origin_server_ts; // Get ms since epoch for message UTC
         const tsDiff = secondsSinceEpoch - eventSecondsSinceEpoch; // Find difference
+        if (tsDiff >= 200) {
+            LogService.warn("index", "Will not respond to a message that has likely already been responded to");
+            return;
+        }
 
-        // In order to not respond to all messages in the room upon re-joining on startup, clip using the epoch ts of the server message
+        // Check message starts with something valid
+        let validListeners = getListeningTermProviders();
+        validListeners.push(config.defaultListeningTerm);
+        let validListener = false;
+        const validProvider = validListeners.find((l) => {
+            if (config.listenerCaseSensitive) return messageForCompare.toLowerCase().startsWith(`${l.toLowerCase()} `);
+            else return messageForCompare.startsWith(`${l} `);
+        });
+        if (validProvider) validListener = true;
+        if (!validListener) return;
+
+        // Process the command
         try {
-            if (tsDiff < 200) {
-                return Promise.resolve(commands.tryCommand(roomId, event));
-            } else {
-                LogService.warn("index", "Will not respond to a message that has likely already been responded to");
-                return;
-            }
+            return Promise.resolve(commands.tryCommand(roomId, event));
         } catch (err) {
             LogService.error("index", err);
             return client.sendNotice(roomId, "There was an error processing your command");
         }
-    });
-
-    client.on("room.event", (roomId, event) => {
-        if (event['type'] !== "m.room.bot.options") return;
-        if (event['state_key'] !== `_${userId}`) return;
     });
 
     return client.start();
