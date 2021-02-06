@@ -40,7 +40,7 @@ export class CommandProcessor {
                         searchTerm = message.substring(foundValidProvider.length + 1).trim();
                     }
                 }
-                else searchTerm = message.substring(provider.length + 1).trim();
+                else searchTerm = message.substring(defaultListeningTerm.length + 1).trim();
 
                 // Handle `!giftv` or the replaced listening term for it
                 if (!searchTerm && provider == "giftv") return this.getGifGifTv(roomId, event, searchTerm);
