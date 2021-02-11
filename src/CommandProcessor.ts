@@ -122,7 +122,7 @@ export class CommandProcessor {
         if (config.supportUrlUploadToServer) {
             options.push({
                 command: `${config.defaultListeningTerm} [URL]`,
-                description: "Upload GIF from URL to server to enable auto-play"
+                description: "Upload a gif from URL to this server to enable auto-play"
             });
         }
         // Get max length of commands
