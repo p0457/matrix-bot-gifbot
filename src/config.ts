@@ -41,6 +41,8 @@ interface IConfig {
 
     defaultProvider: string;
 
+    uploadToServer: boolean;
+
     logging: LogConfig;
 }
 

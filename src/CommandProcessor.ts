@@ -4,9 +4,13 @@ import striptags = require("striptags");
 const axios = require('axios');
 import config from "./config";
 import { getListeningTermProviders } from "./helpers";
+import { v4 as uuidv4 } from "uuid";
 
 export class CommandProcessor {
+    private _client: MatrixClient;
+
     constructor(private client: MatrixClient) {
+        this._client = client;
     }
 
     public tryCommand(roomId: string, event: any): Promise<any> {
@@ -131,8 +135,32 @@ export class CommandProcessor {
             .then((response) => {
                 const gifUrl = processResponse(response);
                 if (gifUrl) {
-                    this.sendHtmlReply(roomId, event, gifUrl);
-                    resolve();
+                    if (config.uploadToServer) {
+                        axios.get(gifUrl, { responseType: 'arraybuffer' })
+                            .then((response) => {
+                                const buffer = Buffer.from(response.data, "utf-8");
+                                const fileName = `gif-${uuidv4()}.gif`;
+                                const mimeType = "image/gif";
+                                this._client.uploadContent(buffer, mimeType, fileName)
+                                    .then((contentUri) => {
+                                        this.sendImageReply(roomId, event, fileName, contentUri, mimeType);
+                                        resolve();
+                                    })
+                                    .catch((error) => {
+                                        LogService.error(`CommandProcessor.${provider}`, error);
+                                        this.sendHtmlReply(roomId, event, "There was an error processing your command");
+                                        reject(error);
+                                    });
+                            })
+                            .catch((error) => {
+                                LogService.error(`CommandProcessor.${provider}`, error);
+                                this.sendHtmlReply(roomId, event, "There was an error processing your command");
+                                reject(error);
+                            });
+                    } else {
+                        this.sendHtmlReply(roomId, event, gifUrl);
+                        resolve();
+                    }
                 } else {
                     this.sendHtmlReply(roomId, event, `No gif found for term <code>${searchTerm}</code>`);
                     resolve();
@@ -309,6 +337,17 @@ export class CommandProcessor {
     private sendHtmlReply(roomId: string, event: any, message: string): Promise<any> {
         const reply = RichReply.createFor(roomId, event, striptags(message), message);
         reply["msgtype"] = "m.notice";
+        return this.client.sendMessage(roomId, reply);
+    }
+
+    private sendImageReply(roomId: string, event: any, fileName: string, contentUri: string, mimeType: string): Promise<any> {
+        const reply = RichReply.createFor(roomId, event, striptags(contentUri), contentUri);
+        reply["body"] = fileName;
+        reply["info"] = {
+            mimetype: mimeType
+        };
+        reply["msgtype"] = "m.image";
+        reply["url"] = contentUri;
         return this.client.sendMessage(roomId, reply);
     }
 }
