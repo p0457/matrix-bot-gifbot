@@ -1,6 +1,6 @@
 {
   "name": "matrix-bot-gifbot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A matrix bot to find gifs for you",
   "main": "./lib/index.js",
   "author": "Thomas Gardner",
