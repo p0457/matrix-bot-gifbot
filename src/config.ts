@@ -43,6 +43,8 @@ interface IConfig {
 
     uploadToServer: boolean;
 
+    supportUrlUploadToServer: boolean;
+
     logging: LogConfig;
 }
 

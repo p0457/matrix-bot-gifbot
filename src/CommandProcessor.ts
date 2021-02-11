@@ -46,6 +46,11 @@ export class CommandProcessor {
                 }
                 else searchTerm = message.substring(defaultListeningTerm.length + 1).trim();
 
+                // Upload gif by url
+                if (config.supportUrlUploadToServer && this.isValidURL(searchTerm.trim())) {
+                    return this.uploadGifByUrl(roomId, event, searchTerm.trim());
+                }
+
                 // Handle `!giftv` or the replaced listening term for it
                 if (!searchTerm && provider == "giftv") return this.getGifGifTv(roomId, event, searchTerm);
                 else if (!searchTerm) {
@@ -114,6 +119,12 @@ export class CommandProcessor {
                 description: "Finds a gif for the term provided from ReplyGif"
             });
         }
+        if (config.supportUrlUploadToServer) {
+            options.push({
+                command: `${config.defaultListeningTerm} [URL]`,
+                description: "Upload GIF from URL to server to enable auto-play"
+            });
+        }
         // Get max length of commands
         const maxCommandLength = Math.max.apply(Math, options.map(function(o) { return o.command.length; }));
         const minimumLength = 17;
@@ -127,6 +138,32 @@ export class CommandProcessor {
         helpString += "</code></pre>";
 
         return helpString;
+    }
+
+    private uploadGifByUrl(roomId: string, event: any, gifUrl: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.get(gifUrl, { responseType: 'arraybuffer' })
+                .then((response) => {
+                    const buffer = Buffer.from(response.data, "utf-8");
+                    const fileName = `gif-${uuidv4()}.gif`;
+                    const mimeType = "image/gif";
+                    this._client.uploadContent(buffer, mimeType, fileName)
+                        .then((contentUri) => {
+                            this.sendImageReply(roomId, event, fileName, contentUri, mimeType);
+                            resolve();
+                        })
+                        .catch((error) => {
+                            LogService.error(`CommandProcessor.URLUpload`, error);
+                            this.sendHtmlReply(roomId, event, "There was an error processing your command");
+                            reject(error);
+                        });
+                })
+                .catch((error) => {
+                    LogService.error(`CommandProcessor.URLUpload`, error);
+                    this.sendHtmlReply(roomId, event, "There was an error processing your command");
+                    reject(error);
+                });
+        });
     }
 
     private getGif(roomId: string, event: any, provider: string, searchTerm: string, axiosOptions: any, processResponse: Function): Promise<any> {
@@ -333,6 +370,11 @@ export class CommandProcessor {
             }
         });
     }
+
+    private isValidURL(url: string): boolean {
+        const res = url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+        return (res !== null);
+    };
 
     private sendHtmlReply(roomId: string, event: any, message: string): Promise<any> {
         const reply = RichReply.createFor(roomId, event, striptags(message), message);

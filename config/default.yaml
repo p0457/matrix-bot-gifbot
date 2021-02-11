@@ -47,6 +47,9 @@ defaultProvider: "rightGif"
 # Upload the gif to the server to enable auto-play, or not
 uploadToServer: true
 
+# Use !gif URL to upload to server for auto-parsing
+supportUrlUploadToServer: true
+
 # Settings for controlling how logging works
 # The Docker image will only consider the consoleLevel, and not write to any files.
 logging:
