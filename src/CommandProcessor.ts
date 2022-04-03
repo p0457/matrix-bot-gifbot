@@ -150,7 +150,7 @@ export class CommandProcessor {
                     this._client.uploadContent(buffer, mimeType, fileName)
                         .then((contentUri) => {
                             this.sendImageReply(roomId, event, fileName, contentUri, mimeType);
-                            resolve();
+                            resolve(undefined);
                         })
                         .catch((error) => {
                             LogService.error(`CommandProcessor.URLUpload`, error);
@@ -169,8 +169,8 @@ export class CommandProcessor {
     private getGif(roomId: string, event: any, provider: string, searchTerm: string, axiosOptions: any, processResponse: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             axios(axiosOptions)
-            .then((response) => {
-                const gifUrl = processResponse(response);
+            .then(async (response) => {
+                const gifUrl = await processResponse(response);
                 if (gifUrl) {
                     if (config.uploadToServer) {
                         axios.get(gifUrl, { responseType: 'arraybuffer' })
@@ -181,7 +181,7 @@ export class CommandProcessor {
                                 this._client.uploadContent(buffer, mimeType, fileName)
                                     .then((contentUri) => {
                                         this.sendImageReply(roomId, event, fileName, contentUri, mimeType);
-                                        resolve();
+                                        resolve(undefined);
                                     })
                                     .catch((error) => {
                                         LogService.error(`CommandProcessor.${provider}`, error);
@@ -196,18 +196,18 @@ export class CommandProcessor {
                             });
                     } else {
                         this.sendHtmlReply(roomId, event, gifUrl);
-                        resolve();
+                        resolve(undefined);
                     }
                 } else {
                     this.sendHtmlReply(roomId, event, `No gif found for term <code>${searchTerm}</code>`);
-                    resolve();
+                    resolve(undefined);
                 }
             }, (error) => {
                 LogService.error(`CommandProcessor.${provider}`, error);
                 this.sendHtmlReply(roomId, event, "There was an error processing your command");
                 reject(error);
             });
-            resolve();
+            resolve(undefined);
         });
     }
 
@@ -237,38 +237,54 @@ export class CommandProcessor {
         }
         const axiosOptions = {
             method: 'get',
-            url: config.tenorAnonApiEndpoint.replace("{key}", config.tenorApiKey)
+            url: config.tenorAnonApiEndpoint
+            .replace("{key}", config.tenorApiKey)
+            .replace("&anon_id={anonId}", "")
         };
-        return this.getGif(roomId, event, "Tenor", searchTerm, axiosOptions, (response) => {
-            try {
-                const body = JSON.parse(response.body);
-                const anonId = body["anon_id"];
-                const limit = 8;
-                const url = config.tenorApiEndpoint
-                .replace("{searchTerm}", searchTerm)
-                .replace("{key}", config.tenorApiKey)
-                .replace("{limit}", limit.toString())
-                .replace("{anonId}", anonId);
-                axios({
-                    method: 'get',
-                    url: url
-                })
-                .then((response) => {
-                    const parsedResponse = JSON.parse(response);
-                    const searchResults = parsedResponse["results"];
-                    const result = searchResults[0];
-                    const gifUrl = result["media"][0]["tinygif"]["url"];
-                    if (gifUrl) return gifUrl;
-                    else return undefined;
-                }, (error) => {
-                    LogService.error("CommandProcessor.Tenor", error);
-                    this.sendHtmlReply(roomId, event, "There was an error processing your command");
-                    return undefined;
-                });
-            }
-            catch (err) {
-                return undefined;
-            }
+        LogService.verbose("CommandProcessor.Tenor", `Finding Gifs from Tenor at endpoint '${axiosOptions.url}'`);
+        return this.getGif(roomId, event, "Tenor", searchTerm, axiosOptions, async (response) => {
+            return new Promise((resolve, reject) => {
+                try {
+                    let mediaType = config.tenorMediaType;
+                    if (!mediaType) {
+                        mediaType = "nanogif"; // The default
+                    }
+                    const body = response.data;
+                    const anonId = body["anon_id"];
+                    const limit = 8;
+                    const url = config.tenorApiEndpoint
+                    .replace("{searchTerm}", searchTerm)
+                    .replace("{key}", config.tenorApiKey)
+                    .replace("{limit}", limit.toString())
+                    .replace("{anonId}", anonId);
+                    LogService.verbose("CommandProcessor.Tenor", `Finding Gif from Tenor at endpoint '${url}'`);
+                    axios({
+                        method: 'get',
+                        url: url
+                    })
+                    .then((response) => {
+                        const result = response.data.results[0];
+                        if (!result || 
+                            !result.media || 
+                            !result.media[0] || 
+                            !result.media[0][mediaType] || 
+                            !result.media[0][mediaType].url) {
+                            LogService.error("CommandProcessor.Tenor", `Gif Url not found in data from endpoint '${url}'; data: ${JSON.stringify(result)}`);
+                            resolve(undefined); 
+                        }
+                        const gifUrl = result.media[0][mediaType].url;
+                        if (gifUrl) resolve(gifUrl);
+                        else resolve(undefined); 
+                    }, (error) => {
+                        LogService.error("CommandProcessor.Tenor", error);
+                        this.sendHtmlReply(roomId, event, "There was an error processing your command");
+                        resolve(undefined);
+                    });
+                }
+                catch (err) {
+                    resolve(undefined);
+                }
+            });
         });
     }
 

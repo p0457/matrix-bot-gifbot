@@ -2,7 +2,7 @@
 
 A matrix bot to find gifs for you.
 Supports finding gifs from:
-- RightGIF
+- ~RightGIF (permanently offline)~
 - ~~Tenor (not working)~~
 - ~~Giphy (not working)~~
 - ~~GifMe (not working)~~

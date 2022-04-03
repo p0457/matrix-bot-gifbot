@@ -69,7 +69,7 @@ async function finishInit() {
         const secondsSinceEpoch = new Date().getTime(); // Get current ms since epoch for now UTC
         const eventSecondsSinceEpoch = event.origin_server_ts; // Get ms since epoch for message UTC
         const tsDiff = secondsSinceEpoch - eventSecondsSinceEpoch; // Find difference
-        if (tsDiff >= 200) {
+        if (tsDiff >= config.msBetweenResponses) {
             const eventId = event["event_id"];
             const sender = event["sender"]
             LogService.warn("index", `Will not respond to a message that has likely already been responded to (or ignored) ${tsDiff}ms ago (${eventId} sent by ${sender})`);

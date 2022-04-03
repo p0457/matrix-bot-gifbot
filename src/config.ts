@@ -39,6 +39,8 @@ interface IConfig {
     gifMeApiKey: string;
     replyGifApiKey: string;
 
+    tenorMediaType: string;
+
     defaultProvider: string;
 
     uploadToServer: boolean;
