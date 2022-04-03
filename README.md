@@ -47,8 +47,11 @@ Copy `config/default.yaml` to `config/production.yaml` and customize to your nee
 Build the docker image:
 `docker build -t matrix-bot-gifbot .`
 
-Docker-compose:
+Docker-compose (foreground):
 `docker-compose run matrix-bot-gifbot`
+
+Docker-compose (background):
+`docker-compose up -d`
 
 Run manually:
 `docker run matrix-bot-gifbot`
