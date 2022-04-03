@@ -41,6 +41,9 @@ giphyApiKey: ""
 gifMeApiKey: ""
 replyGifApiKey: ""
 
+# Types 
+tenorMediaType: "tinymp4"
+
 # Default gif engine to use for defaultListeningTerm, options (not case-sensitive): ["rightGif", "tenor", "giphy", "gifMe", "gifTv", "replyGif"]
 defaultProvider: "rightGif"
 
